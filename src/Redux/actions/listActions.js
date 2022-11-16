@@ -98,6 +98,7 @@ export const AddList = (params) => {
             address: params.address,
             gender: params.gender,
             birthday: params.birthday,
+            profpic: "-",
             token: "632411e20581750298f3078c",
             project: "redux_app",
             collection: "employee_info",
@@ -124,8 +125,8 @@ export const uploadPhoto = (data) => async (dispatch) => {
     var formdata = new FormData();
     formdata.append("token", "632411e20581750298f3078c");
     formdata.append("project", "redux_app");
-    if (data.photo) {
-        formdata.append("file", data.photo);
+    if (data.image) {
+        formdata.append("file", data.image);
     }
     try {
         const response = await fetch("https://io.etter.cloud/v4/upload", {
@@ -172,8 +173,8 @@ export const updateList = (params) => {
         const appid = "636c7d5ebc64651ccd512be6";
         const url = `https://io.etter.cloud/v4/update_id/employee_info`
         const payload = {
-            update_field: "name~phone~email~address~gender~birthday",
-            update_value: params.name + "~" + params.phone + "~" + params.email + "~" + params.address + "~" + params.gender + "~" + params.birthday,
+            update_field: "name~phone~email~address~gender~birthday~profpic",
+            update_value: params.name + "~" + params.phone + "~" + params.email + "~" + params.address + "~" + params.gender + "~" + params.birthday + "~" + params.profpic,
             token: "632411e20581750298f3078c",
             project: "redux_app",
             collection: "employee_info",
@@ -183,6 +184,7 @@ export const updateList = (params) => {
 
         axios.post(url, payload)
             .then(res => {
+                console.log(res.data);
                 dispatch({
                     type: UPDATE_LIST,
                     payload: res.data

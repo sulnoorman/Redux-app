@@ -4,7 +4,7 @@ const initialState = {
     data: [],
     detailList: [],
     deleteList: false,
-    photo: null,
+    photo: "",
     status: "",
 }
 

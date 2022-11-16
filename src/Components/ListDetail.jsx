@@ -16,25 +16,36 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
+import { Dialog, DialogContent, DialogActions } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const ListDetail = () => {
     const dispatch = useDispatch();
     const { id } = useParams();
-    const [image, setImage] = useState("");
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(false);
 
     const { detailList } = useSelector((state) => state.list);
-    const { photo } = useSelector((state) => state.list);
 
     useEffect(() => {
         dispatch(getById(id));
     }, [dispatch, id])
 
     useEffect(() => {
-        if (photo) {
-            setImage("https://file.etter.cloud/d226fd9f5fcf8bc3cbdff22e2bd79efe/" + photo.file_name)
-        } 
-    }, [photo])
+        if (detailList.length !== 0) {
+            if (detailList.profpic !== "-") {
+                setImage("https://file.etter.cloud/d226fd9f5fcf8bc3cbdff22e2bd79efe/" + detailList[0].profpic);
+            }
+        }
+    }, [detailList])
+
+    const imgPreview = () => {
+        setPreview(true);
+    }
+
+    const closeHandler = () => {
+        setPreview(false);
+    }
 
     return (
         <>
@@ -43,7 +54,9 @@ const ListDetail = () => {
             ) : (
                 <div>
                     <Box sx={{ p: 3, height: 200, backgroundColor: "primary.dark", textAlign: "center" }}>
-                        <Avatar sx={{ m: "auto", width: 135, height: 135 }} src={image} />
+                        <Avatar sx={{ m: "auto", width: 135, height: 135 }}
+                            src={detailList[0].profpic === "-" ? ("") : (image)}
+                            onClick={imgPreview} />
                         <Typography variant="h5" sx={{ m: 1, color: grey[100] }}>{detailList[0].name}</Typography>
                         <Typography sx={{ fontSize: 17, color: grey[100] }}>{detailList[0].gender}</Typography>
                     </Box>
@@ -78,6 +91,22 @@ const ListDetail = () => {
                                 <ListItemText primary={detailList[0].address} secondary="Address" />
                             </ListItem>
                         </Card>
+                        {/* dialog for image preview */}
+                        <Dialog
+                            sx={{ m: "auto" }}
+                            open={preview}
+                            onClose={closeHandler}
+                        >
+                            <DialogContent>
+                                <Avatar sx={{ m: "auto", width: 170, height: 170 }}
+                                        onClick={closeHandler}
+                                        src={detailList[0].profpic === "-" ? ("") : (image)}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+
+                            </DialogActions>
+                        </Dialog>
                     </Box>
                 </div>
             )}

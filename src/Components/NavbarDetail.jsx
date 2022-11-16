@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, AppBar, TextField } from '@mui/material';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -14,41 +14,75 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { deleteList, uploadPhoto } from '../Redux/actions/listActions';
+import { deleteList, uploadPhoto, updateList, getById } from '../Redux/actions/listActions';
 
 export default function NavbarDetail() {
     const { id } = useParams()
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [deleteOpen, setDeleteOpen] = useState(false);
     const [addOpen, setAddOpen] = useState(false);
-    const [photo, setPhoto] = useState(null);
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [addImage, setAddImage] = useState(false);
+    const [image, setImage] = useState("");
+    const [profpic, setProfpic] = useState("");
 
-    const backHandler = () => {
+    const { detailList } = useSelector((state) => state.list);
+    const { photo } = useSelector((state) => state.list)
+
+    useEffect(() => {
+        dispatch(getById(id));
+    }, [dispatch, id])
+
+    useEffect(() => {
+        if (photo) {
+            setProfpic(photo.file_name);
+        }
+    }, [photo])
+
+    const backHandler = async () => {
         navigate("/");
     }
 
+    // code for add photo
     const addPhotoButton = () => {
         setAddOpen(true);
     }
 
-    const handleChangeFile = (e) => {
+    const handleChangeFile = async (e) => {
         e.preventDefault();
         console.log(e.target.files[0]);
         if (e.target.files[0]) {
             const reader = new FileReader();
             reader.readAsDataURL(e.target.files[0]);
-            setPhoto(e.target.files[0]);
+            setImage(e.target.files[0]);
         }
     }
 
     const addPhoto = async () => {
         const data = {
-            photo
+            image: image,
         }
         dispatch(uploadPhoto(data));
-        setAddOpen(false);  
+        setAddOpen(false);
+        setAddImage(true)
     }
+    const uploadImage = async () => {
+        const data = {
+            name: detailList[0].name,
+            phone: detailList[0].phone,
+            gender: detailList[0].gender,
+            email: detailList[0].email,
+            birthday: detailList[0].birthday,
+            address: detailList[0].address,
+            profpic: photo.file_name,
+            id: id
+        }
+        await dispatch(updateList(data));
+        setAddImage(false);
+        window.location.reload();
+    }
+    // code for add Photo end
+
 
     const toEditHandler = () => {
         navigate(`/EditPage/${id}`);
@@ -57,6 +91,7 @@ export default function NavbarDetail() {
     const closeHandler = () => {
         setDeleteOpen(false);
         setAddOpen(false);
+        setAddImage(false);
     }
 
     const deleteButton = () => {
@@ -123,6 +158,28 @@ export default function NavbarDetail() {
                     <DialogActions>
                         <Button onClick={closeHandler}>Cancel</Button>
                         <Button onClick={addPhoto}>Add</Button>
+                    </DialogActions>
+                </Dialog>
+                {/* dialog for add photo to api */}
+                <Dialog
+                    open={addImage}
+                    onClose={closeHandler}
+                    fullWidth
+                    maxWidth="sm"
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        Add this photo
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure want to add this photo
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={closeHandler}>Cancel</Button>
+                        <Button onClick={uploadImage} autoFocus>Yes</Button>
                     </DialogActions>
                 </Dialog>
             </Box>

@@ -59,6 +59,7 @@ const FormEditList = () => {
             gender: gender[0],
             birthday: birthday,
             address: address,
+            profpic: "-",
             id: id
         }
         await dispatch(updateList(data));
